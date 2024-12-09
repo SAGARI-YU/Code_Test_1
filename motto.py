@@ -1,19 +1,35 @@
 import requests
 import fake_useragent
 from lxml import etree
+from bs4 import BeautifulSoup
+import re
 
 def get_next_url(url,headers):
     response=requests.get(url,headers=headers)
-    res=etree.HTML(response.content.decode("utf8"))
+    res=BeautifulSoup(response.text,'lxml')
     next_url=res.xpath("//div[@class='pager clearfix']/li/a[4]/@href")
     return next_url[0]
 
+# def get_next_url(url,headers):
+#     response=requests.get(url,headers=headers)
+#     res=etree.HTML(response.content.decode("utf8"))
+#     next_url=res.xpath("//div[@class='pager clearfix']/li/a[4]/@href")
+#     return next_url[0]
+
+# def get_content(url,headers):
+#     response=requests.get(url,headers=headers)
+#     res=etree.HTML(response.content.decode("utf8"))
+#     title=(res.xpath("//div[@id='article']/h1/text()"))
+#     motto=res.xpath("//div[@id='article']/div[2]/p/text()")
+#     return title,motto
+
 def get_content(url,headers):
     response=requests.get(url,headers=headers)
-    res=etree.HTML(response.content.decode("utf8"))
-    title=(res.xpath("//div[@id='article']/h1/text()"))
-    motto=res.xpath("//div[@id='article']/div[2]/p/text()")
+    res=BeautifulSoup(response.text,'lxml')
+    title=(res.find_all('#article'))
+    motto=res.find_all('div','txt')
     return title,motto
+
 def write_motto(title,motto):
     with open(f'{title}.txt','w') as f:
         f.write(title)
